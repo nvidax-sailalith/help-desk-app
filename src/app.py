@@ -153,6 +153,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# ─── FUNCTION TO HANDLE RERUN COMPATIBILITY ─────────────────────────────────────
+
+def safe_rerun():
+    """Handle rerun compatibility across Streamlit versions"""
+    try:
+        st.rerun()
+    except AttributeError:
+        try:
+            st.experimental_rerun()
+        except AttributeError:
+            # If neither works, we'll just refresh the page state
+            st.session_state._rerun_requested = True
+
 # ─── INITIALIZE SESSION STATE ──────────────────────────────────────────────────
 
 if "logged_in" not in st.session_state:
@@ -210,7 +223,7 @@ if not st.session_state.logged_in:
                     st.session_state.logged_in = True
                     st.session_state.role = match.iloc[0]["role"]
                     st.session_state.user = username_clean
-                    st.rerun()
+                    safe_rerun()
                 else:
                     st.error("Invalid email or password.")
                     st.stop()
@@ -227,7 +240,7 @@ if st.sidebar.button("Logout"):
     st.session_state.role = None
     st.session_state.user = None
     st.session_state.issue_submitted = False  # Reset form state if present
-    st.rerun()
+    safe_rerun()
 st.sidebar.markdown("---")
 
 # ─── HELPER TO LOAD + NORMALIZE issues.csv ───────────────────────────────────────
@@ -313,7 +326,7 @@ if role == "Developer Intern":
                 df_existing = pd.concat([df_existing, pd.DataFrame([new_issue])], ignore_index=True)
                 df_existing.to_csv(ISSUES_CSV, index=False)
                 st.session_state.issue_submitted = True
-                st.rerun()
+                safe_rerun()
     else:
         st.markdown(
             "<div class='resolve-success'>"
@@ -326,7 +339,7 @@ if role == "Developer Intern":
         st.write("")
         if st.button("Any more queries?"):
             st.session_state.issue_submitted = False
-            st.rerun()
+            safe_rerun()
 
 # ─── TECH LEAD SECTION ───────────────────────────────────────────────────────────
 
@@ -377,7 +390,7 @@ elif role == "Tech Lead":
                                 df.loc[df["ID"] == row["ID"], "Response"]   = response_text
                                 df.to_csv(ISSUES_CSV, index=False)
                                 st.success(f"Issue marked as resolved by {techlead_email}")
-                                st.rerun()
+                                safe_rerun()
 
         with tab2:
             st.subheader("✅ Resolved Issues")
