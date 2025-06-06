@@ -210,7 +210,7 @@ if not st.session_state.logged_in:
                     st.session_state.logged_in = True
                     st.session_state.role = match.iloc[0]["role"]
                     st.session_state.user = username_clean
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid email or password.")
                     st.stop()
@@ -227,7 +227,7 @@ if st.sidebar.button("Logout"):
     st.session_state.role = None
     st.session_state.user = None
     st.session_state.issue_submitted = False  # Reset form state if present
-    st.experimental_rerun()
+    st.rerun()
 st.sidebar.markdown("---")
 
 # ─── HELPER TO LOAD + NORMALIZE issues.csv ───────────────────────────────────────
@@ -313,7 +313,7 @@ if role == "Developer Intern":
                 df_existing = pd.concat([df_existing, pd.DataFrame([new_issue])], ignore_index=True)
                 df_existing.to_csv(ISSUES_CSV, index=False)
                 st.session_state.issue_submitted = True
-                st.experimental_rerun()
+                st.rerun()
     else:
         st.markdown(
             "<div class='resolve-success'>"
@@ -326,7 +326,7 @@ if role == "Developer Intern":
         st.write("")
         if st.button("Any more queries?"):
             st.session_state.issue_submitted = False
-            st.experimental_rerun()
+            st.rerun()
 
 # ─── TECH LEAD SECTION ───────────────────────────────────────────────────────────
 
@@ -377,7 +377,7 @@ elif role == "Tech Lead":
                                 df.loc[df["ID"] == row["ID"], "Response"]   = response_text
                                 df.to_csv(ISSUES_CSV, index=False)
                                 st.success(f"Issue marked as resolved by {techlead_email}")
-                                st.experimental_rerun()
+                                st.rerun()
 
         with tab2:
             st.subheader("✅ Resolved Issues")
